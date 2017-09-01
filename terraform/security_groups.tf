@@ -7,11 +7,27 @@ resource "aws_security_group" "Master-Linux" {
   vpc_id = "${aws_vpc.terraformmain.id}"
 
   ingress {
-    from_port   = "22"
-    to_port     = "22"
+    from_port   = "0"
+    to_port     = "65000"
     protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = "0"
+    to_port     = "65000"
+    protocol    = "UDP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 8
+    to_port = 0
+    protocol = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
   egress {
     from_port = 0
     to_port = 0
@@ -38,11 +54,19 @@ resource "aws_security_group" "Gateway" {
   vpc_id = "${aws_vpc.terraformmain.id}"
 
   ingress {
-    from_port   = "22"
-    to_port     = "22"
+    from_port   = "0"
+    to_port     = "65000"
     protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = "0"
+    to_port     = "65000"
+    protocol    = "UDP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port = 0
     to_port = 0
@@ -60,11 +84,19 @@ resource "aws_security_group" "Node" {
   vpc_id = "${aws_vpc.terraformmain.id}"
 
   ingress {
-    from_port   = "22"
-    to_port     = "22"
+    from_port   = "0"
+    to_port     = "65000"
     protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = "0"
+    to_port     = "65000"
+    protocol    = "UDP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
   egress {
     from_port = 0
     to_port = 0

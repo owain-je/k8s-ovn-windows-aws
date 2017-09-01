@@ -54,6 +54,42 @@ resource "aws_iam_instance_profile" "gateway-profile" {
   role = "${aws_iam_role.master-nodes-iam.name}"
 }
 
+resource "aws_iam_role_policy" "gateway-nodes_role_policy" {
+  name = "s3-rw-state"
+  role = "${aws_iam_role.gateway-nodes-iam.id}"
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*",
+                "s3:Put*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${var.cluster-name}-k8s-state/*",
+                "arn:aws:s3:::${var.cluster-name}-k8s-state"
+            ]
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${var.cluster-name}-k8s-state"
+            ]
+        }
+    ]
+}
+EOF
+}
+
 
 resource "aws_iam_instance_profile" "master-nodes-profile" {
   name  = "${var.cluster-name}-master-nodes-profile"

@@ -15,15 +15,17 @@ export K8S_DNS_DOMAIN=cluster.local
 
 env
 
+groupadd kube-cert
+
 apt install -y awscli 
 
-#Needs to wait until master ip is there, to avoid race condition with master nodes
-until aws s3 cp s3://\$S3_BUCKET/masterip /masterip
+#Needs to wait until gw ip is there, to avoid race condition with master and gw nodes
+until aws s3 cp s3://\$S3_BUCKET/gwip /gwip
 do
-  echo "master ip not available"
+  echo "gw ip not available"
   sleep 5 
 done
-
+aws s3 cp s3://\$S3_BUCKET/masterip /masterip
 aws s3 cp s3://\$S3_BUCKET/tls/ca-key.pem /etc/kubernetes/tls/ca-key.pem 
 aws s3 cp s3://\$S3_BUCKET/tls/ca.pem /etc/kubernetes/tls/ca.pem 
 
