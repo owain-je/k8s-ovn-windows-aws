@@ -103,7 +103,7 @@ ovn-k8s-overlay gateway-init --cluster-ip-subnet "\$K8S_POD_SUBNET" --bridge-int
 systemctl daemon-reload
 systemctl enable ovn-k8s-gateway-helper.service
 systemctl enable gateway-network-startup.service
-#systemctl start ovn-k8s-gateway-helper.service
+systemctl start ovn-k8s-gateway-helper.service
 
 echo \$LOCAL_IP > /gwip
 aws s3 cp /gwip s3://\$S3_BUCKET/gwip
@@ -158,7 +158,7 @@ apt install -y awscli
 cat >/etc/rc.local <<EOL
 #!/bin/sh -e
 #
-#sudo /startup.sh > /var/log/startup.log 2>&1
+sudo /startup.sh > /var/log/startup.log 2>&1
 exit 0
 EOL
 
