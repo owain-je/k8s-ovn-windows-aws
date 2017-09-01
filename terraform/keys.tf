@@ -1,0 +1,4 @@
+resource "aws_key_pair" "keypair" {
+  key_name   = "${var.cluster-name}"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+bJaWjRRhj6SG/kzWB8J3ostt9g5WHfXQ0jkqUInBGa7xrcMZzG50rNAVcbSKdA5LNe2iRxioYRAs1sboypFh4i6ggoU6FyLgel76RBiN7emEfvWc/fDyXnxCZ8BFVjGzfRlm99bawDsvtk1TKQ5rCohy6QxhmJAwEQ1EVHnKlfTEMz+Mu33oozUlvS0zm0PwptlKK1cg2NW7B9hG5b5QHCtozlbm4a5hGxTZ5SGVSzY82LHAjIH3OKt95DXa1tcRHwuvjGyO1y6Ign3P4vaDl2cZk/kD1JfoKM7hF1tI3N0lFQpvIxKJNxuTu7k51D71SAYAWWTZRAVMDZDpHCu9 operry@887baa1826b0"
+}
