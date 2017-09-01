@@ -25,7 +25,7 @@ HEREDOC
 }
 
 resource "aws_instance" "bastion-win" {
-  ami           = "${lookup(var.AmiWin, var.region)}"
+  ami           = "${lookup(var.AmiWindows, var.region)}"
   instance_type = "${var.bastion-windows-instance-type}"
   associate_public_ip_address = "true"
   subnet_id = "${aws_subnet.PublicAZA.id}"

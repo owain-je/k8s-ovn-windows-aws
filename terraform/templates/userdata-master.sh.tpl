@@ -2,34 +2,40 @@
 
 cat >/startup.sh <<EOL
 #!/bin/bash
-S3_BUCKET=${bucket_name}
-K8S_VERSION=1.7.3
-TUNNEL_MODE=geneve
-LOCAL_IP=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print $3}')
-MASTER_IP=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print $3}')
-HOSTNAME=`hostname`
-K8S_VERSION=1.7.3
-K8S_POD_SUBNET=10.244.0.0/16
-K8S_NODE_POD_SUBNET=10.244.1.0/24
-K8S_SERVICE_SUBNET=10.100.0.0/16
-K8S_API_SERVICE_IP=10.100.0.1
-K8S_DNS_VERSION=1.13.0
-K8S_DNS_SERVICE_IP=10.100.0.10
-K8S_DNS_DOMAIN=cluster.local
-ETCD_VERSION=3.1.1
-MASTER_INTERNAL_IP=10.244.1.2
+export S3_BUCKET=${bucket_name}
+export K8S_VERSION=1.7.3
+export TUNNEL_MODE=geneve
+export LOCAL_IP=\$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print \$3}')
+export MASTER_IP=\$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print \$3}')
+export HOSTNAME=`hostname`
+export K8S_VERSION=1.7.3
+export K8S_POD_SUBNET=10.244.0.0/16
+export K8S_NODE_POD_SUBNET=10.244.1.0/24
+export K8S_SERVICE_SUBNET=10.100.0.0/16
+export K8S_API_SERVICE_IP=10.100.0.1
+export K8S_DNS_VERSION=1.13.0
+export K8S_DNS_SERVICE_IP=10.100.0.10
+export K8S_DNS_DOMAIN=cluster.local
+export ETCD_VERSION=3.1.1
+export MASTER_INTERNAL_IP=10.244.1.2
+echo "ovn setup"
 
+echo "open v switch setup"
+sleep 5 
+echo "setting connections"
 ovn-nbctl set-connection ptcp:6641
 ovn-sbctl set-connection ptcp:6642
+echo "connections set"
 
-ovs-vsctl set Open_vSwitch . external_ids:ovn-remote="tcp:\$MASTER_IP:6642" \
-  external_ids:ovn-nb="tcp:\$MASTER_IP:6641" \
-  external_ids:ovn-encap-ip="\$LOCAL_IP" \
-  external_ids:ovn-encap-type="\$TUNNEL_MODE"
+ovs-vsctl set Open_vSwitch . external_ids:ovn-remote="tcp:\$MASTER_IP:6642" external_ids:ovn-nb="tcp:\$MASTER_IP:6641" external_ids:ovn-encap-ip="\$LOCAL_IP" external_ids:ovn-encap-type="\$TUNNEL_MODE"
+
 ovs-vsctl get Open_vSwitch . external_ids
+echo "--- north and southbound"
+echo \$$(ovn-sbctl show)
+echo \$$(ovn-nbctl show)
+echo "---"
 
 cd ~/kubernetes-ovn-heterogeneous-cluster/master
-
 rm -rf tmp
 mkdir tmp
 cp -R make-certs openssl.cnf kubedns-* manifests systemd tmp/
@@ -76,8 +82,19 @@ kubectl config set-credentials default-admin --certificate-authority=/etc/kubern
 kubectl config set-context local --cluster=default-cluster --user=default-admin
 kubectl config use-context local
 
-
-export TOKEN=$(kubectl describe secret $(kubectl get secrets | grep default | cut -f1 -d ' ') | grep -E '^token' | cut -f2 -d':' | tr -d '\t')
+while true; do
+  str=\$$(kubectl get nodes)
+  echo Output: \$str
+  if [[ \$str =~ "SchedulingDisabled" ]]; then
+    break
+  fi
+  sleep 1
+done
+echo "get token"
+export TOKEN_NAME=\$$(kubectl get secrets | grep default | cut -f1 -d ' ')
+echo "TOKEN_NAME: \$TOKEN_NAME"
+export TOKEN=\$$(kubectl describe secret \$TOKEN_NAME | grep -E '^token' | cut -f2 -d':' | tr -d '\t')
+echo "TOKEN \$TOKEN"
 
 ovs-vsctl set Open_vSwitch . external_ids:k8s-api-server="https://\$MASTER_IP" external_ids:k8s-api-token="\$TOKEN"
 
@@ -97,10 +114,14 @@ pip install --upgrade --prefix=/usr/local --ignore-installed .
 ovn-k8s-overlay minion-init \
   --cluster-ip-subnet="\$K8S_POD_SUBNET" \
   --minion-switch-subnet="\$K8S_NODE_POD_SUBNET" \
-  --node-name="\$HOSTNAME"
+  --node-name="\$HOSTNAME" 
 
-systemctl enable kubelet
-systemctl start kubelet
+echo "ovn-k8s-overlaye exit: \$?"
+
+systemctl enable ovn-k8s-watcher
+systemctl start ovn-k8s-watcher
+
+echo "uploading files to s3"
 
 echo \$MASTER_IP > /masterip
 aws s3 cp /masterip s3://\$S3_BUCKET/masterip
@@ -109,6 +130,14 @@ aws s3 cp /etc/kubernetes/tls/ca.pem s3://\$S3_BUCKET/tls/ca.pem
 aws s3 cp /etc/kubernetes/tls/admin-key.pem s3://\$S3_BUCKET/admin/admin-key.pem
 aws s3 cp /etc/kubernetes/tls/admin.pem s3://\$S3_BUCKET/admin/admin.pem
 aws s3 cp /root/.kube/config s3://\$S3_BUCKET/admin/config
+
+env
+
+echo "--- north and southbound"
+echo \$$(ovn-sbctl show)
+echo \$$(ovn-nbctl show)
+echo "---"
+
 
 cat > /etc/rc.local <<AOL
 #!/bin/sh -e
@@ -162,7 +191,7 @@ apt install awscli -y
 cat >/etc/rc.local <<EOL
 #!/bin/sh -e
 #
-sudo /startup.sh > /var/log/startup.log
+sudo /startup.sh > /var/log/startup.log 2>&1
 exit 0
 EOL
 

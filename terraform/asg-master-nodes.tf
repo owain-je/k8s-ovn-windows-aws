@@ -1,12 +1,9 @@
-
-
 data "template_file" "userdata-master" {
     template = "${file("templates/userdata-master.sh.tpl")}"
     vars {
         bucket_name = "${aws_s3_bucket.bucket.id}"
     }
 }
-
 
 resource "aws_autoscaling_group" "master-linux-asg" {
   availability_zones    = ["${var.core-availability-zone}"]

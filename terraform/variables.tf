@@ -14,7 +14,7 @@ variable "AmiLinux" {
   }
   description = ""
 }
-variable "AmiWin" {
+variable "AmiWindows" {
   type = "map"
   default = {
     eu-west-2 = "ami-70e5f414"
@@ -74,6 +74,11 @@ variable "bastion-windows-instance-type" {
 variable "master-linux-instance-type" {
   default = "t2.medium"
   description = "linux master node instance type"
+}
+
+variable "gateway-linux-instance-type" {
+  default = "t2.medium"
+  description = "linux gateway node instance type"
 }
 
 variable "node-linux-instance-type" {

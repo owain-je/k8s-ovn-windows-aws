@@ -1,3 +1,9 @@
+data "template_file" "userdata-linux-node" {
+    template = "${file("templates/userdata-nodes.sh.tpl")}"
+    vars {
+        bucket_name = "${aws_s3_bucket.bucket.id}"
+    }
+}
 
 resource "aws_autoscaling_group" "node-linux-asg" {
   availability_zones   = ["${var.core-availability-zone}"]
@@ -23,7 +29,7 @@ resource "aws_launch_configuration" "node-linux-lc" {
   image_id             = "${lookup(var.AmiLinux, var.region)}"
   instance_type        = "${var.node-linux-instance-type}"
   security_groups      = ["${aws_security_group.Node.id}"]
-  user_data            = "${file("userdata-linux-node.sh")}"
+  user_data            = "${data.template_file.userdata-linux-node.rendered}"
   key_name             = "${var.cluster-name}"
   iam_instance_profile = "${aws_iam_instance_profile.nodes-profile.name}"
   lifecycle {
