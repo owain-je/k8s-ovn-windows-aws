@@ -107,9 +107,6 @@ pip install --upgrade --prefix=/usr/local --ignore-installed .
 
 ovn-k8s-overlay minion-init --cluster-ip-subnet="\$K8S_POD_SUBNET" --minion-switch-subnet="\$K8S_NODE_POD_SUBNET" --node-name="\$HOSTNAME"
 
-systemctl enable kubelet
-systemctl start kubelet
-
 cat > /etc/rc.local <<AOL
 #!/bin/sh -e
 #

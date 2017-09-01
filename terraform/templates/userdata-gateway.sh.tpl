@@ -5,13 +5,9 @@ cat >/startup.sh <<EOL
 S3_BUCKET=${bucket_name}
 export TUNNEL_MODE=geneve
 export LOCAL_IP=\$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print \$3}')
-export LAST_OCTET=\$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print \$3}' | cut -d . -f 4)
 export HOSTNAME=`hostname`
 export K8S_VERSION=1.7.3
 export K8S_POD_SUBNET=10.244.0.0/16
-export K8S_NODE_POD_SUBNET=10.244.\$LAST_OCTET.0/24
-export K8S_DNS_SERVICE_IP=10.100.0.10
-export K8S_DNS_DOMAIN=cluster.local
 export GW_IP=\$(/sbin/ip route | awk '/default/ { print \$3 }')
 export NIC=eth0
 
@@ -35,7 +31,7 @@ export MASTER_IP=\$$(< /masterip)
 
 echo "MASTER_IP \$MASTER_IP"
 echo "LOCAL_IP \$LOCAL_IP"
-echo "K8S_NODE_POD_SUBNET \$K8S_NODE_POD_SUBNET"
+echo "K8S_NODE_POD_SUBNET \$K8S_POD_SUBNET"
 
 
 ovs-vsctl set Open_vSwitch . external_ids:ovn-remote="tcp:\$MASTER_IP:6642" \
@@ -99,17 +95,15 @@ pip install --upgrade --prefix=/usr/local --ignore-installed .
 # "RTNETLINK answers: File exists"; these messages are expected.
 ovn-k8s-util nics-to-bridge \$NIC && dhclient br\$NIC
 
-ovn-k8s-overlay gateway-init \
-  --cluster-ip-subnet "\$K8S_POD_SUBNET" \
-  --bridge-interface "br\$NIC" \
-  --physical-ip "\$LOCAL_IP/24" \
-  --node-name "\$HOSTNAME" \
-  --default-gw "\$GW_IP"
+echo "debugging" 
+
+echo "ovn-k8s-overlay gateway-init --cluster-ip-subnet \"\$K8S_POD_SUBNET\" --bridge-interface \"br\$NIC\" --physical-ip \"\$LOCAL_IP/24\" --node-name \"\$HOSTNAME\" --default-gw \"\$GW_IP\""
+ovn-k8s-overlay gateway-init --cluster-ip-subnet "\$K8S_POD_SUBNET" --bridge-interface "br\$NIC" --physical-ip "\$LOCAL_IP/24" --node-name "\$HOSTNAME" --default-gw "\$GW_IP"
 
 systemctl daemon-reload
 systemctl enable ovn-k8s-gateway-helper.service
 systemctl enable gateway-network-startup.service
-systemctl start ovn-k8s-gateway-helper.service
+#systemctl start ovn-k8s-gateway-helper.service
 
 echo \$LOCAL_IP > /gwip
 aws s3 cp /gwip s3://\$S3_BUCKET/gwip
@@ -164,7 +158,7 @@ apt install -y awscli
 cat >/etc/rc.local <<EOL
 #!/bin/sh -e
 #
-sudo /startup.sh > /var/log/startup.log 2>&1
+#sudo /startup.sh > /var/log/startup.log 2>&1
 exit 0
 EOL
 

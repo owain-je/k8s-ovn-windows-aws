@@ -111,15 +111,25 @@ cd ovn-kubernetes
 
 pip install --upgrade --prefix=/usr/local --ignore-installed .
 
-ovn-k8s-overlay minion-init \
-  --cluster-ip-subnet="\$K8S_POD_SUBNET" \
-  --minion-switch-subnet="\$K8S_NODE_POD_SUBNET" \
-  --node-name="\$HOSTNAME" 
+echo "sleeping"
+sleep 20 
+echo "slept"
 
-echo "ovn-k8s-overlaye exit: \$?"
+echo " ovn-k8s-overlay master-init --cluster-ip-subnet=\"\$K8S_POD_SUBNET\" --master-switch-subnet=\"\$K8S_NODE_POD_SUBNET\" --node-name=\"\$HOSTNAME\" "
+
+ovn-k8s-overlay master-init \
+  --cluster-ip-subnet="\$K8S_POD_SUBNET" \
+  --master-switch-subnet="\$K8S_NODE_POD_SUBNET" \
+  --node-name="\$HOSTNAME"
+
+echo "ovn-k8s-overlay master init exit: \$?"
 
 systemctl enable ovn-k8s-watcher
 systemctl start ovn-k8s-watcher
+
+cd ~/kubernetes-ovn-heterogeneous-cluster/master
+kubectl create -f tmp/kubedns-deployment.yaml
+kubectl create -f tmp/kubedns-service.yaml
 
 echo "uploading files to s3"
 
