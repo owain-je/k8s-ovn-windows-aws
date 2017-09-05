@@ -56,7 +56,7 @@ ovs-vsctl $DB_SOCK set Open_vSwitch . external_ids:ovn-remote="tcp:$($KUBERNETES
 
 $GUID = (New-Guid).Guid
 ovs-vsctl $DB_SOCK set Open_vSwitch . external_ids:system-id="$($GUID)"
-ovs-ofctl $DB_SOCK add-flow br-ex priority=1,action=strip_vlan,NORMAL
+ovs-ofctl  add-flow br-ex priority=1,action=strip_vlan,NORMAL
 sleep 5
 write-host "debugging data:" 
 
@@ -75,7 +75,7 @@ cmd /c 'sc create ovn-k8s binPath= "\"c:\Program Files\Cloudbase Solutions\Open 
 
 sleep 5
 write-host "adding aws strip vlan setting"
-ovs-ofctl $DB_SOCK add-flow br-ex priority=1,action=strip_vlan,NORMAL
+ovs-ofctl  add-flow br-ex priority=1,action=strip_vlan,NORMAL
 write-host "strip vlan done "
 write-host "running windows-init  $HOSTNAME $SUBNET $CLUSTER_IP_SUBNET"
 sleep 5

@@ -1,5 +1,4 @@
 <powershell>
-
 $Logfile = "C:\userdata.log"
 
 Function LogWrite
@@ -88,7 +87,7 @@ LogWrite "Master API is $KUBERNETES_API_SERVER"
 
 powershell -c  .\install_ovn.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER'" -GATEWAY_IP "'$GATEWAY_IP'" -SUBNET "'$SUBNET'"  > c:\ovs\install_ovn.log 2>&1 
 
-powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER'" -K8S_VERSION "'$K8S_VERSION" -K8S_DNS_SERVICE_IP "'$K8S_DNS_SERVICE_IP'" -K8S_DNS_DOMAIN "'$K8S_DNS_DOMAIN'"  > c:\ovs\install_k8s.log 2>&1
+powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "$KUBERNETES_API_SERVER" -K8S_VERSION "$K8S_VERSION" -K8S_DNS_SERVICE_IP "$K8S_DNS_SERVICE_IP" -K8S_DNS_DOMAIN "$K8S_DNS_DOMAIN"  > c:\ovs\install_k8s.log 2>&1
 
 
 </powershell>
