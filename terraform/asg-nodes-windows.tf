@@ -36,3 +36,10 @@ resource "aws_launch_configuration" "node-windows-lc" {
     create_before_destroy = true
   }
 }
+
+resource "aws_s3_bucket_object" "install_ovn" {
+  bucket = "${var.cluster-name}-k8s-state"
+  key    = "files/install_ovn.ps1"
+  source = "files/install_ovn.ps1"
+  etag   = "${md5(file("files/install_ovn.ps1"))}"
+}

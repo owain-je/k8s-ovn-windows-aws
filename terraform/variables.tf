@@ -5,6 +5,7 @@ variable "cluster-name" {
 variable "region" {
   default = "eu-west-1"
 }
+
 variable "AmiLinux" {
   type = "map"
   default = {
@@ -87,6 +88,6 @@ variable "node-linux-instance-type" {
 }
 
 variable "node-windows-instance-type" {
-  default = "m3.medium"
+  default = "m4.large"
   description = "linux master node instance type"
 }
