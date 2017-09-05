@@ -5,6 +5,7 @@ param(
 [string] $K8S_DNS_SERVICE_IP  = "10.100.0.10",
 [string] $K8S_DNS_DOMAIN = "cluster.local"
 )
+# 
 
 $HOSTNAME = hostname
 
@@ -14,7 +15,10 @@ mkdir $K8S_PATH
 cd $K8S_PATH
 
 # Download and extract Kubernetes binaries
-Start-BitsTransfer https://dl.k8s.io/v$K8S_VERSION/kubernetes-node-windows-amd64.tar.gz
+$start_time = Get-Date
+Invoke-WebRequest -Uri "https://dl.k8s.io/v$K8S_VERSION/kubernetes-node-windows-amd64.tar.gz" -OutFile "c:\$K8S_PATH\kubernetes-node-windows-amd64.tar.gz"
+LogWrite  "openvswitch-hyperv-2.7.0-certified.msi Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+
 cmd /c '"C:\Program Files\7-Zip\7z.exe" e kubernetes-node-windows-amd64.tar.gz'
 cmd /c '"C:\Program Files\7-Zip\7z.exe" x kubernetes-node-windows-amd64.tar'
 mv kubernetes\node\bin\*.exe .
