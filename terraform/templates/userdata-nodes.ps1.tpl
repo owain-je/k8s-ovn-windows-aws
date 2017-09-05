@@ -9,8 +9,8 @@ Function LogWrite
    Add-content $Logfile -value $logstring
 }
 
-$K8S_VERSION="1.7.3",
-$K8S_DNS_SERVICE_IP  = "10.100.0.10",
+$K8S_VERSION="1.7.3"
+$K8S_DNS_SERVICE_IP  = "10.100.0.10"
 $K8S_DNS_DOMAIN = "cluster.local"
 $SUBNET_PREFIX="10.244"
 $CLUSTER_IP_SUBNET="$SUBNET_PREFIX.0.0/16"
@@ -20,10 +20,10 @@ $net=$octets[3]
 $SUBNET="$SUBNET_PREFIX.$net.0/24" 
 $GATEWAY_IP="$SUBNET_PREFIX.$net.1"
 
-LogWrite("PUBLIC_IP: $PUBLIC_IP")
-LogWrite("CLUSTER_IP_SUBNET: $CLUSTER_IP_SUBNET")
-LogWrite("SUBNET: $SUBNET")
-LogWrite("GATEWAY_IP: $GATEWAY_IP")
+LogWrite "PUBLIC_IP: $PUBLIC_IP"
+LogWrite "CLUSTER_IP_SUBNET: $CLUSTER_IP_SUBNET"
+LogWrite "SUBNET: $SUBNET"
+LogWrite "GATEWAY_IP: $GATEWAY_IP"
 
 Set-ExecutionPolicy -ExecutionPolicy bypass
 
@@ -53,7 +53,7 @@ Install-WindowsFeature -Name Containers
 LogWrite "install open v switch"
 
 cd c:\ovs
-cmd /c 'msiexec /i openvswitch-hyperv-2.7.0-certified.msi ADDLOCAL="OpenvSwitchCLI,OpenvSwitchDriver,OVNHost" /qn' 
+cmd /c 'msiexec /i openvswitch-hyperv-2.7.0-certified.msi ADDLOCAL="OpenvSwitchCLI,OpenvSwitchDriver,OVNHost" APPDATADIR="c:\ProgramData\openvswitch\run\openvswitch" /qn' 
 do {
 	$service = Get-WmiObject -Class Win32_Service -Filter "Name='ovn-controller'"
 	LogWrite "Service exitcode: $service.exitcode"
