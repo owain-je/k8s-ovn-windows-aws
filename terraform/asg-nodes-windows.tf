@@ -43,3 +43,10 @@ resource "aws_s3_bucket_object" "install_ovn" {
   source = "files/install_ovn.ps1"
   etag   = "${md5(file("files/install_ovn.ps1"))}"
 }
+
+resource "aws_s3_bucket_object" "install_k8s" {
+  bucket = "${var.cluster-name}-k8s-state"
+  key    = "files/install_k8s.ps1"
+  source = "files/install_k8s.ps1"
+  etag   = "${md5(file("files/install_k8s.ps1"))}"
+}
