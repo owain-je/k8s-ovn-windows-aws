@@ -62,6 +62,8 @@ until ($service.exitcode -eq 0)
 
 $env:path = $env:path + ";c:\Program Files\Cloudbase Solutions\Open vSwitch\bin;c:\kubernetes;C:\Program Files\Amazon\AWSCLI"
 [Environment]::SetEnvironmentVariable("Path",$env:Path,[System.EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable("CONTAINER_NETWORK","external",[System.EnvironmentVariableTarget]::Machine)
+
 
 LogWrite "added to path $env:path"
 LogWrite "installed open v switch"
@@ -89,6 +91,10 @@ powershell -c  .\install_ovn.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER
 
 powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "$KUBERNETES_API_SERVER" -K8S_VERSION "$K8S_VERSION" -K8S_DNS_SERVICE_IP "$K8S_DNS_SERVICE_IP" -K8S_DNS_DOMAIN "$K8S_DNS_DOMAIN"  > c:\ovs\install_k8s.log 2>&1
 
+write-host "sleeping for a few seconds"
+sleep 5 
+write-host "restarting"
+Restart-Computer -Force
 
 </powershell>
 

@@ -33,4 +33,5 @@ Remove-Item -Recurse -Force kubernetes-node-windows-amd64*
 $cmd = 'sc create kubelet binPath= "\"c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\servicewrapper.exe\" kubelet \"C:\kubernetes\kubelet.exe\" -v=3 --hostname-override={0} --cluster-dns={1} --cluster-domain={2} --pod-infra-container-image=\"apprenda/pause\" --resolv-conf=\"\" --api_servers=\"http://{3}:8080\" --logtostderr=false --log-dir=\"C:\kubernetes\"" type= own start= auto error= ignore displayname= "Kubernetes Kubelet" obj= LocalSystem' -f $HOSTNAME, $K8S_DNS_SERVICE_IP, $K8S_DNS_DOMAIN, $KUBERNETES_API_SERVER
 cmd /c $cmd
 
-Start-Service kubelet
+#We are going to reboot so kubelet will start then.
+#Start-Service kubelet
