@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: default-ingress
+spec:
+  rules:
+  - host: demo.cloud
+    http:
+      paths:
+      - backend:  
+          serviceName: guestbook
+          servicePort: 3000
