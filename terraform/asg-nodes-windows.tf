@@ -50,3 +50,10 @@ resource "aws_s3_bucket_object" "install_k8s" {
   source = "files/install_k8s.ps1"
   etag   = "${md5(file("files/install_k8s.ps1"))}"
 }
+
+resource "aws_s3_bucket_object" "startup" {
+  bucket = "${var.cluster-name}-k8s-state"
+  key    = "files/startup.ps1"
+  source = "files/startup.ps1"
+  etag   = "${md5(file("files/startup.ps1"))}"
+}

@@ -185,6 +185,23 @@ resource "aws_iam_role_policy" "nodes_role_policy" {
             "Resource": [
                 "arn:aws:s3:::${var.cluster-name}-k8s-state"
             ]
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+              "ecr:GetAuthorizationToken",
+              "ecr:BatchCheckLayerAvailability",
+              "ecr:GetDownloadUrlForLayer",
+              "ecr:GetRepositoryPolicy",
+              "ecr:DescribeRepositories",
+              "ecr:ListImages",
+              "ecr:DescribeImages",
+              "ecr:BatchGetImage"
+            ],
+            "Resource": [
+                "*"
+            ]
         }
     ]
 }
