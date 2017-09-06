@@ -17,9 +17,11 @@ cd $K8S_PATH
 # Download and extract Kubernetes binaries
 $start_time = Get-Date
 $uri = "https://dl.k8s.io/v" + $K8S_VERSION + "/kubernetes-node-windows-amd64.tar.gz"
+$out = $K8S_PATH + "\kubernetes-node-windows-amd64.tar.gz"
 write-host $uri
+write-host $out
+Invoke-WebRequest -Uri $uri -OutFile $out
 
-Invoke-WebRequest -Uri $uri -OutFile "c:\$K8S_PATH\kubernetes-node-windows-amd64.tar.gz"
 LogWrite  "openvswitch-hyperv-2.7.0-certified.msi Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
 cmd /c '"C:\Program Files\7-Zip\7z.exe" e kubernetes-node-windows-amd64.tar.gz'
