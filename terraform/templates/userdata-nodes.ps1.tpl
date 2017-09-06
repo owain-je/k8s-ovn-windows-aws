@@ -83,7 +83,7 @@ until ($ECODE -eq 0)
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/install_ovn.ps1" c:\ovs\install_ovn.ps1
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/install_k8s.ps1" c:\ovs\install_k8s.ps1
 
-& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/startup.ps1" c:\ovs\startup.ps1
+& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/startup.ps1" c:\startup.ps1
 
 
 $KUBERNETES_API_SERVER=[IO.File]::ReadAllText("c:\masterip").replace("`n","").replace("`r","")
@@ -94,7 +94,7 @@ powershell -c  .\install_ovn.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER
 
 powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "$KUBERNETES_API_SERVER" -K8S_VERSION "$K8S_VERSION" -K8S_DNS_SERVICE_IP "$K8S_DNS_SERVICE_IP" -K8S_DNS_DOMAIN "$K8S_DNS_DOMAIN"  > c:\ovs\install_k8s.log 2>&1
 
-schtasks /create /tn "custome_startup" /tr 'cmd /c powershell -ExecutionPolicy Bypass c:\startup.ps1 -RunType $true -Path c:\' /sc onstart /RU SYSTEM /RL HIGHEST
+schtasks /create /tn "custome_startup" /sc onstart /RU SYSTEM /RL HIGHEST /tr 'cmd /c powershell -ExecutionPolicy Bypass c:\startup.ps1 -RunType $true -Path c:\' 
 
 
 
