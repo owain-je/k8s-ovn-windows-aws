@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: consumerweb
+  labels:
+    app: consumerweb
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: consumerweb
+    spec:
+      containers:
+      - name: consumerweb
+        image: 375012098440.dkr.ecr.eu-west-1.amazonaws.com/demo/consumerweb:1.0
+        ports:
+        - name: http-server
+          containerPort: 8000
+          protocol: TCP
+      nodeSelector:
+        beta.kubernetes.io/os: windows
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumerweb
+  labels:
+    app: consumerweb
+spec:
+  selector:
+    app: consumerweb
+  ports:
+  - port: 3000
+    targetPort: 3000

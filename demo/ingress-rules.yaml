@@ -10,3 +10,9 @@ spec:
       - backend:  
           serviceName: guestbook
           servicePort: 3000
+  - host: consumerweb.cloud
+    http:
+      paths:
+      - backend:  
+          serviceName: consumerweb
+          servicePort: 8000
