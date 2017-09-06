@@ -40,14 +40,14 @@ resource "aws_elb" "gateway" {
   security_groups = ["${aws_security_group.elb.id}"]
 
   listener {
-    instance_port     = 80
+    instance_port     = 30080
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
   }
 
   #listener {
-  #  instance_port     = 443
+  #  instance_port     = 30443
   #  instance_protocol = "https"
   #  lb_port           = 443
   #  lb_protocol       = "https"
@@ -57,8 +57,8 @@ resource "aws_elb" "gateway" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "HTTP:80/"
-    interval            = 30
+    target              = "TCP:30080"
+    interval            = 5
   }
 
   # The instance is registered automatically

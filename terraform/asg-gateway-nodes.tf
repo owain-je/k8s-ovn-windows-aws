@@ -14,7 +14,7 @@ resource "aws_autoscaling_group" "gateway-asg" {
   force_delete         = true
   vpc_zone_identifier  = ["${aws_subnet.Nodes.id}"]
   launch_configuration = "${aws_launch_configuration.gateway-lc.name}"
-  #load_balancers       = ["${aws_elb.gateway.name}"]
+  load_balancers       = ["${aws_elb.gateway.name}"]
   tag {
     key                 = "Name"
     value               = "${var.cluster-name}-gateway"
