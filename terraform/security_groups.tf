@@ -142,6 +142,42 @@ resource "aws_security_group" "Bastion-Linux" {
   }
 }
 
+resource "aws_security_group" "dockerproxy-Linux" {
+  name = "${var.cluster-name}-dockerproxy-linux"
+  tags {
+        Name = "${var.cluster-name}-dockerproxy-linux"
+  }
+  description = "dockerproxy linux connections"
+  vpc_id = "${aws_vpc.terraformmain.id}"
+
+  ingress {
+    from_port   = "22"
+    to_port     = "22"
+    protocol    = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+    ingress {
+    from_port   = "80"
+    to_port     = "80"
+    protocol    = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+    ingress {
+    from_port   = "443"
+    to_port     = "443"
+    protocol    = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+
 resource "aws_security_group" "Bastion-Win" {
   name = "${var.cluster-name}-bastion-win"
   tags {

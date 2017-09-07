@@ -9,8 +9,8 @@ resource "aws_autoscaling_group" "node-windows-asg" {
   availability_zones   = ["${var.core-availability-zone}"]
   name                 = "${var.cluster-name}-node-windows"
   max_size             = "4"
-  min_size             = "4"
-  desired_capacity     = "4"
+  min_size             = "1"
+  desired_capacity     = "1"
   force_delete         = true
   vpc_zone_identifier  = ["${aws_subnet.Nodes.id}"]
   launch_configuration = "${aws_launch_configuration.node-windows-lc.name}"
@@ -35,6 +35,11 @@ resource "aws_launch_configuration" "node-windows-lc" {
   lifecycle {
     create_before_destroy = true
   }
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "150"
+    delete_on_termination = "true"
+  }
 }
 
 resource "aws_s3_bucket_object" "install_ovn" {
@@ -56,4 +61,11 @@ resource "aws_s3_bucket_object" "startup" {
   key    = "files/startup.ps1"
   source = "files/startup.ps1"
   etag   = "${md5(file("files/startup.ps1"))}"
+}
+
+resource "aws_s3_bucket_object" "startup" {
+  bucket = "${var.cluster-name}-k8s-state"
+  key    = "bin/ovn-controller.exe"
+  source = "bin/ovn-controller.exe"
+  etag   = "${md5(file("bin/ovn-controller.exe"))}"
 }

@@ -82,8 +82,15 @@ until ($ECODE -eq 0)
 
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/install_ovn.ps1" c:\ovs\install_ovn.ps1
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/install_k8s.ps1" c:\ovs\install_k8s.ps1
-
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/startup.ps1" c:\startup.ps1
+
+#Patch the ovn-controller.exe
+#write-host "HACK: patch ovn-controller with less cpu hogging patched version"
+#Stop-service ovn-controller
+#& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/ovn-controller.exe" c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\ovn-controller.exe
+#Start-Service ovn-controller
+#write-host "END HACK"
+
 
 
 $KUBERNETES_API_SERVER=[IO.File]::ReadAllText("c:\masterip").replace("`n","").replace("`r","")
@@ -93,6 +100,14 @@ LogWrite "Master API is $KUBERNETES_API_SERVER"
 powershell -c  .\install_ovn.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER'" -GATEWAY_IP "'$GATEWAY_IP'" -SUBNET "'$SUBNET'"  > c:\ovs\install_ovn.log 2>&1 
 
 powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "$KUBERNETES_API_SERVER" -K8S_VERSION "$K8S_VERSION" -K8S_DNS_SERVICE_IP "$K8S_DNS_SERVICE_IP" -K8S_DNS_DOMAIN "$K8S_DNS_DOMAIN"  > c:\ovs\install_k8s.log 2>&1
+
+
+$x = Get-NetIPConfiguration | Foreach IPv4DefaultGateway
+$dgw = "$x.NextHop"
+& route ADD 169.254.169.250 MASK 255.255.255.255 $dgw METRIC 50
+& route ADD 169.254.169.251 MASK 255.255.255.255 $dgw METRIC 50
+& route ADD 169.254.169.254 MASK 255.255.255.255 $dgw METRIC 50
+
 
 schtasks /create /tn "custome_startup" /sc onstart /RU SYSTEM /RL HIGHEST /tr 'cmd /c powershell -ExecutionPolicy Bypass c:\startup.ps1 -RunType $true -Path c:\' 
 

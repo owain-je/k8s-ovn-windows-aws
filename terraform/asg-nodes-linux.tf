@@ -35,4 +35,9 @@ resource "aws_launch_configuration" "node-linux-lc" {
   lifecycle {
     create_before_destroy = true
   }
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "150"
+    delete_on_termination = "true"
+  }
 }

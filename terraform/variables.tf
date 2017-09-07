@@ -91,3 +91,9 @@ variable "node-windows-instance-type" {
   default = "m4.large"
   description = "linux master node instance type"
 }
+
+variable "dockerproxy-linux-instance-type" {
+  default = "t2.medium"
+  description = "linux dockerproxy instance type"
+}
+

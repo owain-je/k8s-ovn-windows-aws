@@ -176,6 +176,46 @@ resource "aws_iam_role_policy" "nodes_role_policy" {
             ]
         },
         {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::kubernetes-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:Describe*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:AttachVolume",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:DetachVolume",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
             "Sid": "",
             "Effect": "Allow",
             "Action": [
@@ -183,9 +223,84 @@ resource "aws_iam_role_policy" "nodes_role_policy" {
                 "s3:ListBucket"
             ],
             "Resource": [
-                "arn:aws:s3:::${var.cluster-name}-k8s-state"
+                "arn:aws:s3:::venus.je-k8s-state"
             ]
         },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+EOF
+}
+
+
+
+resource "aws_iam_role" "nodes-iam" {
+  name = "${var.cluster-name}-nodes-role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "ecrproxy-iam" {
+  name = "${var.cluster-name}-ecrproxy-role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_instance_profile" "ecrproxy-profile" {
+  name  = "${var.cluster-name}-ecrproxy-profile"
+  role = "${aws_iam_role.ecrproxy-iam.name}"
+}
+
+
+resource "aws_iam_role_policy" "ecrproxy_role_policy" {
+  name = "ecr-read"
+  role = "${aws_iam_role.ecrproxy-iam.id}"
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
         {
             "Sid": "",
             "Effect": "Allow",
@@ -209,22 +324,4 @@ EOF
 }
 
 
-resource "aws_iam_role" "nodes-iam" {
-  name = "${var.cluster-name}-nodes-role"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
 
