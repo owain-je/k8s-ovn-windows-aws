@@ -26,7 +26,9 @@ LogWrite "GATEWAY_IP: $GATEWAY_IP"
 
 Set-ExecutionPolicy -ExecutionPolicy bypass
 
-Remove-WindowsFeature Windows-Defender, Windows-Defender-GUI
+LogWrite "Uninstall windows-defender"
+Uninstall-WindowsFeature -Name Windows-Defender
+#Remove-WindowsFeature Windows-Defender, Windows-Defender-GUI
 
 LogWrite "install chocolatey"
 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -91,25 +93,30 @@ until ($ECODE -eq 0)
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/install_k8s.ps1" c:\ovs\install_k8s.ps1
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/startup.ps1" c:\startup.ps1
 
-#Patch the ovn-controller.exe
-write-host "HACK: patch ovn-controller with less cpu hogging patched version"
-Stop-service ovn-controller
-& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/ovn-controller.exe" c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\ovn-controller.exe
-Start-Service ovn-controller
-write-host "END HACK"
-
-
-write-host "HACK: patch k8s-ovn"
-stop-service ovn-k8s
-& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/k8s_ovn.exe" c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\k8s_ovn.exe
-start-service ovn-k8s
-
-
 $KUBERNETES_API_SERVER=[IO.File]::ReadAllText("c:\masterip").replace("`n","").replace("`r","")
 
 LogWrite "Master API is $KUBERNETES_API_SERVER"
 
 powershell -c  .\install_ovn.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER'" -GATEWAY_IP "'$GATEWAY_IP'" -SUBNET "'$SUBNET'"  > c:\ovs\install_ovn.log 2>&1 
+
+
+#Patch the ovn-controller.exe
+LogWrite "HACK: patch ovn-controller with less cpu hogging patched version"
+Stop-service ovn-controller
+sleep 5
+& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/ovn-controller.exe" c:\ovs\ovn-controller.exe
+Copy-Item  -force c:\ovs\ovn-controller.exe c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\ovn-controller.exe
+Start-Service ovn-controller
+write-host "END HACK"
+
+LogWrite "HACK: patch k8s-ovn"
+stop-service ovn-k8s
+sleep 5
+& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/k8s_ovn.exe" c:\ovs\k8s_ovn.exe
+Copy-Item  -force c:\ovs\k8s_ovn.exe "c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\"
+start-service ovn-k8s
+
+LogWrite "Installing kubernetes"
 
 powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "$KUBERNETES_API_SERVER" -K8S_VERSION "$K8S_VERSION" -K8S_DNS_SERVICE_IP "$K8S_DNS_SERVICE_IP" -K8S_DNS_DOMAIN "$K8S_DNS_DOMAIN"  > c:\ovs\install_k8s.log 2>&1
 
@@ -121,7 +128,7 @@ $dgw = "$x.NextHop"
 & route ADD 169.254.169.254 MASK 255.255.255.255 $dgw METRIC 50
 
 
-schtasks /create /tn "custome_startup" /sc onstart /RU SYSTEM /RL HIGHEST /tr 'cmd /c powershell -ExecutionPolicy Bypass c:\startup.ps1 -RunType $true -Path c:\' 
+schtasks /create /tn "custom_startup" /sc onstart /RU SYSTEM /RL HIGHEST /tr 'cmd /c powershell -ExecutionPolicy Bypass c:\startup.ps1 -RunType $true -Path c:\' 
 
 
 write-host "sleeping for a few seconds"
