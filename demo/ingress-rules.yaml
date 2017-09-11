@@ -10,7 +10,7 @@ spec:
       - backend:  
           serviceName: guestbook
           servicePort: 3000
-  - host: consumerweb.cloud
+  - host: consumerweb.unimatrix0.je-labs.com
     http:
       paths:
       - backend:  
