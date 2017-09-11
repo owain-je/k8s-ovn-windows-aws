@@ -15,3 +15,5 @@ $dgw = $x.NextHop
 & route ADD 169.254.169.250 MASK 255.255.255.255 "$dgw" METRIC 50
 & route ADD 169.254.169.251 MASK 255.255.255.255 "$dgw" METRIC 50
 & route ADD 169.254.169.254 MASK 255.255.255.255 "$dgw" METRIC 50
+
+start-service "kubelet"

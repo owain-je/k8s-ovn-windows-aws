@@ -93,6 +93,10 @@ until ($ECODE -eq 0)
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/install_k8s.ps1" c:\ovs\install_k8s.ps1
 & "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/files/startup.ps1" c:\startup.ps1
 
+& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/ovn-controller.exe" c:\ovs\ovn-controller.exe
+& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/k8s_ovn.exe" c:\ovs\k8s_ovn.exe
+
+
 $KUBERNETES_API_SERVER=[IO.File]::ReadAllText("c:\masterip").replace("`n","").replace("`r","")
 
 LogWrite "Master API is $KUBERNETES_API_SERVER"
@@ -102,24 +106,17 @@ powershell -c  .\install_ovn.ps1 -KUBERNETES_API_SERVER "'$KUBERNETES_API_SERVER
 
 #Patch the ovn-controller.exe
 LogWrite "HACK: patch ovn-controller with less cpu hogging patched version"
-Stop-service ovn-controller
+Stop-service ovn-controller -force
+Stop-service ovn-k8s -force
 sleep 5
-& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/ovn-controller.exe" c:\ovs\ovn-controller.exe
-Copy-Item  -force c:\ovs\ovn-controller.exe c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\ovn-controller.exe
-Start-Service ovn-controller
-write-host "END HACK"
-
-LogWrite "HACK: patch k8s-ovn"
-stop-service ovn-k8s
-sleep 5
-& "C:\Program Files\Amazon\AWSCLI\aws.exe" s3 cp "s3://$S3_BUCKET/bin/k8s_ovn.exe" c:\ovs\k8s_ovn.exe
-Copy-Item  -force c:\ovs\k8s_ovn.exe "c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\"
+Copy-Item  -force c:\ovs\ovn-controller.exe "c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\ovn-controller.exe"
+Copy-Item  -force c:\ovs\k8s_ovn.exe "c:\Program Files\Cloudbase Solutions\Open vSwitch\bin\k8s_ovn.exe"
 start-service ovn-k8s
+Start-Service ovn-controller
 
 LogWrite "Installing kubernetes"
 
 powershell -c  .\install_k8s.ps1 -KUBERNETES_API_SERVER "$KUBERNETES_API_SERVER" -K8S_VERSION "$K8S_VERSION" -K8S_DNS_SERVICE_IP "$K8S_DNS_SERVICE_IP" -K8S_DNS_DOMAIN "$K8S_DNS_DOMAIN"  > c:\ovs\install_k8s.log 2>&1
-
 
 $x = Get-NetIPConfiguration | Foreach IPv4DefaultGateway
 $dgw = "$x.NextHop"
