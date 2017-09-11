@@ -7,7 +7,9 @@ param(
 )
 # 
 
-$HOSTNAME = hostname
+#$HOSTNAME = hostname
+$HOSTNAME = [IO.File]::ReadAllText("c:\hostname").replace("`n","").replace("`r","")
+write-host "HOSTNAME: $HOSTNAME"
 
 write-host "install_k8s.ps1 -K8S_PATH '$K8S_PATH' -K8S_VERSION '$K8S_VERSION' -KUBERNETES_API_SERVER '$KUBERNETES_API_SERVER' -K8S_DNS_SERVICE_IP  '$K8S_DNS_SERVICE_IP' -K8S_DNS_DOMAIN '$K8S_DNS_DOMAIN' "
 

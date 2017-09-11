@@ -10,7 +10,7 @@ resource "aws_autoscaling_group" "node-windows-asg" {
   name                 = "${var.cluster-name}-node-windows"
   max_size             = "4"
   min_size             = "1"
-  desired_capacity     = "1"
+  desired_capacity     = "2"
   force_delete         = true
   vpc_zone_identifier  = ["${aws_subnet.Nodes.id}"]
   launch_configuration = "${aws_launch_configuration.node-windows-lc.name}"
@@ -63,9 +63,16 @@ resource "aws_s3_bucket_object" "startup" {
   etag   = "${md5(file("files/startup.ps1"))}"
 }
 
-resource "aws_s3_bucket_object" "startup" {
+resource "aws_s3_bucket_object" "ovn-controller" {
   bucket = "${var.cluster-name}-k8s-state"
   key    = "bin/ovn-controller.exe"
   source = "bin/ovn-controller.exe"
   etag   = "${md5(file("bin/ovn-controller.exe"))}"
+}
+
+resource "aws_s3_bucket_object" "k8s-ovn-exe" {
+  bucket = "${var.cluster-name}-k8s-state"
+  key    = "bin/k8s_ovn.exe"
+  source = "bin/k8s_ovn.exe"
+  etag   = "${md5(file("bin/k8s_ovn.exe"))}"
 }

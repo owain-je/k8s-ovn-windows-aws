@@ -8,8 +8,15 @@ param(
 [string] $INTERFACE_NAME="Ethernet",
 [string] $PUBLIC_IP=(Get-NetIPConfiguration | Where-Object {$_.InterfaceAlias -eq "$INTERFACE_NAME"}).IPv4Address.IPAddress
 )
+
+$a,$b,$c,$d = $PUBLIC_IP.split(".");
+$region =  "eu-west-1"
+$HOSTNAME = "ip-$a-$b-$c-$d.$region.compute.internal"
+
+Add-content "C:\hostname" -value $HOSTNAME
+
 write-host "install_ovn.ps1 -SUBNET '$SUBNET' -GATEWAY_IP '$GATEWAY_IP' -CLUSTER_IP_SUBNET '$CLUSTER_IP_SUBNET' -INTERFACE_ALIAS '$INTERFACE_ALIAS'  -KUBERNETES_API_SERVER '$KUBERNETES_API_SERVER' -INTERFACE_NAME '$INTERFACE_NAME' -PUBLIC_IP='$PUBLIC_IP'" 
-$HOSTNAME=hostname
+#$HOSTNAME=hostname
 $K8S_ZIP=".\k8s_ovn_service_prerelease.zip" # Location of k8s OVN binaries (DO NOT CHANGE unless you know what you're doing)
 $OVS_PATH="c:\Program Files\Cloudbase Solutions\Open vSwitch\bin" # Default installation directory for OVS (DO NOT CHANGE unless you know what you're doing)
 write-host "HOSTNAME: $HOSTNAME "
