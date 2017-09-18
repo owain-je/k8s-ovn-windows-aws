@@ -16,3 +16,9 @@ spec:
       - backend:  
           serviceName: consumerweb
           servicePort: 8000
+  - host: k8sapi.unimatrix0.je-labs.com
+    http:
+      paths:
+      - backend:  
+          serviceName: kubernetes
+          servicePort: 443          
