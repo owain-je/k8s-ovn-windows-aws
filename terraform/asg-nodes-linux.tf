@@ -8,9 +8,9 @@ data "template_file" "userdata-linux-node" {
 resource "aws_autoscaling_group" "node-linux-asg" {
   availability_zones   = ["${var.core-availability-zone}"]
   name                 = "${var.cluster-name}-node-linux"
-  max_size             = "1"
+  max_size             = "4"
   min_size             = "1"
-  desired_capacity     = "1"
+  desired_capacity     = "2"
   force_delete         = true
   vpc_zone_identifier  = ["${aws_subnet.Nodes.id}"]
   launch_configuration = "${aws_launch_configuration.node-linux-lc.name}"

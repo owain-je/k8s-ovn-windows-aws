@@ -6,7 +6,10 @@ S3_BUCKET=${bucket_name}
 export TUNNEL_MODE=geneve
 export LOCAL_IP=\$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print \$3}')
 export LAST_OCTET=\$(ip addr | grep 'state UP' -A2 | tail -n1 | awk -F'[/ ]+' '{print \$3}' | cut -d . -f 4)
-export HOSTNAME=`hostname`
+export EC2_AVAIL_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+export EC2_REGION="`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed -e 's:\([0-9][0-9]*\)[a-z]*\$:\\1:'`"
+export HNAME=`hostname`
+export HOSTNAME="\$HNAME.\$EC2_REGION.compute.internal"
 export K8S_VERSION=1.7.3
 export K8S_POD_SUBNET=10.244.0.0/16
 export K8S_NODE_POD_SUBNET=10.244.\$LAST_OCTET.0/24
@@ -137,7 +140,7 @@ echo "install docker"
 apt install -y docker.io dkms
 
 cd ~
-git clone https://github.com/apprenda/kubernetes-ovn-heterogeneous-cluster
+git clone https://github.com/owain-je/kubernetes-ovn-heterogeneous-cluster.git
 cd kubernetes-ovn-heterogeneous-cluster/deb
 
 dpkg -i openvswitch-common_2.7.2-1_amd64.deb \
