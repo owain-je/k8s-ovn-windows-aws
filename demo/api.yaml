@@ -128,3 +128,17 @@ spec:
     targetPort: 8080
   selector:
     k8s-app: default-http-backend    
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api-ingress
+  namespace: kube-system
+spec:
+  rules:
+  - host: k8sapi.unimatrix0.je-labs.com
+    http:
+      paths:
+      - backend:  
+          serviceName: kubernetes.default
+          servicePort: 443  
