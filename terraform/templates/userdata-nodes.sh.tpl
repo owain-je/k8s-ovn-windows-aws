@@ -130,14 +130,14 @@ export K8S_VERSION=1.7.3
 export S3_BUCKET=${bucket_name}
 
 apt update -y
-apt-get -y install  python-minimal python-six
+apt-get -y install  python-minimal python-six socat
 
 curl -fsSL https://yum.dockerproject.org/gpg | apt-key add -
 echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > sudo tee /etc/apt/sources.list.d/docker.list
 
 apt update -y
 echo "install docker"
-apt install -y docker.io dkms
+apt install -y docker.io dkms 
 
 cd ~
 git clone https://github.com/owain-je/kubernetes-ovn-heterogeneous-cluster.git
