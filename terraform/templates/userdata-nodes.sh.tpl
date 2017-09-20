@@ -134,7 +134,7 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > sudo tee /etc
 
 apt update -y
 echo "install docker"
-apt install -y docker.io dkms
+apt install -y docker.io dkms socat
 
 cd ~
 git clone https://github.com/apprenda/kubernetes-ovn-heterogeneous-cluster
